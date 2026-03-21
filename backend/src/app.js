@@ -2,6 +2,8 @@
 // importing packages
 const express = require('express');
 const path = require('path');
+const errorMiddleware = require('./middleware/error.middleware');
+
 
 
 // creating express app
@@ -20,14 +22,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
 
-// routes
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-})
+// import routes
+const authRoutes = require('./routes/auth.route');
+
+
+
+// use routes
+app.use('/api/v1/users', authRoutes);
 
 
 
 
+
+// use error middleware (should be last middleware)
+app.use(errorMiddleware);
 
 // export express
 module.exports = app;

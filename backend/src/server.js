@@ -1,14 +1,12 @@
 // Start the server
-
-
-// import app       
-const app = require('./app');
 const dotenv = require('dotenv');
-const connectDatabase = require('./db/db');
 
+// Load environment variables before importing modules that may read process.env
+dotenv.config({ path: './src/config/config.env' });
 
-// Load environment variables from .env file
-dotenv.config({ path: "./config/config.env" });
+// import app
+const app = require('./app');
+const connectDatabase = require('./db/db.config');
 
 // set port
 const PORT = process.env.PORT || 8000;
