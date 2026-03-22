@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const sendToken = require("../utils/sendToken");
 const catchAsyncErrors = require("../utils/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorHandler");
-const Email = require("../utils/emailValidation");
+const Email = require("../utils/email");
 const { ApiResponse } = require("../utils/apiResponse");
 
 
@@ -25,6 +25,13 @@ exports.signup = catchAsyncErrors(async (req, res, next) => {
     phoneNumber,
     avatar,
   })
+
+  try {
+    const welcomeURL = `${process.env.FRONTEND_URL}/dashboard`;
+    await new Email(user, welcomeURL).sendWelcome();
+  } catch (err) {
+    console.error("Welcome email failed to send:", err);
+  }
 
   sendToken(user, 201, "User registered successfully", res);
 });
