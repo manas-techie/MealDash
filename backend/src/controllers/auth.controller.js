@@ -24,7 +24,15 @@ exports.signup = catchAsyncErrors(async (req, res, next) => {
     passwordConfirm,
     phoneNumber,
     avatar,
-  })
+  });
+
+  try {
+    const welcomeURL = `${process.env.FRONTEND_URL}`;
+    await new Email(user, welcomeURL).sendWelcome();
+  } catch (err) {
+    // Do not block signup if the welcome email fails
+    console.error("Welcome email could not be sent:", err.message);
+  }
 
   sendToken(user, 201, "User registered successfully", res);
 });

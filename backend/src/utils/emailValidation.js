@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 const pug = require("pug");
 
 // Convert HTML email to plain text version (some email clients require this)
-const htmlToText = require("html-to-text");
+const { convert } = require("html-to-text");
 
 // Email class used to send different types of emails to users
 module.exports = class Email {
@@ -73,7 +73,7 @@ module.exports = class Email {
       html,
 
       // Plain text version of the email
-      text: htmlToText.convert(html),
+      text: convert(html),
     };
 
     // Send email using configured transporter
