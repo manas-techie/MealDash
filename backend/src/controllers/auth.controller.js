@@ -3,7 +3,8 @@ const crypto = require("crypto");
 const sendToken = require("../utils/sendToken");
 const catchAsyncErrors = require("../utils/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorHandler");
-const Email = require("../utils/email");
+const Email = require("../utils/emailValidation");
+const { ApiResponse } = require("../utils/apiResponse");
 
 
 // Register user
@@ -25,7 +26,7 @@ exports.signup = catchAsyncErrors(async (req, res, next) => {
     avatar,
   })
 
-  sendToken(user, 201, res);
+  sendToken(user, 201, "User registered successfully", res);
 });
 
 // Login user
@@ -49,28 +50,43 @@ exports.login = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Invalid password", 401));
   }
 
-  sendToken(user, 200, res);
-})
+  sendToken(user, 200, "Login successful", res);
+});
 
 //logout user
 exports.logout = catchAsyncErrors(async (req, res, next) => {
-  res.cookie("jwt", null), {
+  // res.cookie("jwt", null), {
+  //   expires: new Date(Date.now()),
+  //   httpOnly: true,
+  // }
+  const user = req.user;
+  User.findByIdAndUpdate(
+    user._id,
+    {
+      $unset: { jwtToken: "" }
+    },
+    {
+      new: true
+    }
+  ).exec();
+
+  options = {
     expires: new Date(Date.now()),
     httpOnly: true,
   }
-  res.status(200).json({
-    success: true,
-    message: "Logged out successfully",
-  });
+  res.status(200)
+    .clearCookie("jwt", options)
+    .json(
+      new ApiResponse(200, "Logout successful", {})
+    );
 })
 
 // get currently logged in user details
 exports.getUserDetails = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findById(req.user.id);
-  res.status(200).json({
-    success: true,
-    data: { user },
-  });
+  res.status(200).json(
+    new ApiResponse(200, "User details retrieved successfully", { user })
+  );
 })
 
 // Update Password
@@ -94,10 +110,11 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
 
   await user.save();
 
-  res.status(200).json({
-    success: true,
-    message: "Password updated successfully",
-  });
+  user.password = undefined;
+
+  res.status(200).json(
+    new ApiResponse(200, "Password updated successfully", { user })
+  );
 });
 
 // Forgot Password
@@ -117,10 +134,9 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
     await new Email(user, resetURL).sendPasswordReset();
 
-    res.status(200).json({
-      status: "success",
-      message: "Token sent to email!",
-    });
+    res.status(200).json(
+      new ApiResponse(200, "Token sent to email!")
+    );
   } catch (err) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
@@ -160,5 +176,5 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
   await user.save();
 
-  sendToken(user, 200, res);
+  sendToken(user, 200, "Password reset successful", res);
 });

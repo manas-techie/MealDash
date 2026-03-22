@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
+const { DB_NAME } = require('../constant');
 
 // Connect to MongoDB
-const connectDatabase = () => {
-    if (!process.env.MONGO_URI) {
-        console.error('MongoDB connection error: MONGO_URI is not set. Check src/config/config.env and dotenv path.');
-        return;
-    }
+const connectDatabase = async () => {
 
-    mongoose.connect(process.env.MONGO_URI)
-        .then((con) => console.log('MongoDB connected successfully with host:', con.connection.host))
-        .catch(err => console.error('MongoDB connection error:', err));
+    await mongoose.connect(`${process.env.MONGO_URI}${DB_NAME}`)
+    .then((con) => console.log('MONGODB CONNECTED SUCCESSFULLY WITH HOST: ', con.connection.host))
+        .catch(err => console.error('MONGODB CONNECTION ERROR: ', err));
 };
 
 module.exports = connectDatabase;

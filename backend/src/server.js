@@ -1,22 +1,28 @@
-// Start the server
 const dotenv = require('dotenv');
-
-// Load environment variables before importing modules that may read process.env
-dotenv.config({ path: './src/config/config.env' });
-
-// import app
 const app = require('./app');
 const connectDatabase = require('./db/db.config');
 
-// set port
-const PORT = process.env.PORT || 8000;
+dotenv.config({ path: './src/config/config.env' });
+
+const PORT = process.env.PORT || 3000;
 
 
 // Connect to the database
-connectDatabase();
+connectDatabase()
+    .then(() => {
+        // start server
+        const server = app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
 
-// start server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+        server.on('error', (err) => {
+            console.error('SERVER ERROR: ', err);
+            process.exit(1);
+        });
+    })
+    .catch((err) => {
+        console.error('MONGODB FAILED TO CONNECT: ', err);
+        process.exit(1);
+    })
+
 

@@ -4,14 +4,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../utils/catchAsyncErrors");
 
 exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
-    let token;
-
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith("Bearer ")
-    ) {
-        token = req.headers.authorization.split(" ")[1];
-    }
+    const token = req.cookies?.jwt || req.headers?.authorization?.split(" ")[1];
 
     if (!token) {
         return next(new ErrorHandler("Please login to access this resource", 401));
