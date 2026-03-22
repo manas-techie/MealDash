@@ -67,7 +67,7 @@ exports.logout = catchAsyncErrors(async (req, res, next) => {
   //   httpOnly: true,
   // }
   const user = req.user;
-  User.findByIdAndUpdate(
+  await User.findByIdAndUpdate(
     user._id,
     {
       $unset: { jwtToken: "" }
@@ -77,7 +77,7 @@ exports.logout = catchAsyncErrors(async (req, res, next) => {
     }
   ).exec();
 
-  options = {
+  const options = {
     expires: new Date(Date.now()),
     httpOnly: true,
   }
@@ -114,10 +114,12 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
 
   user.password = newPassword;
   user.passwordConfirm = newPasswordConfirm;
+  user.passwordChangedAt = Date.now();
 
   await user.save();
 
   user.password = undefined;
+
 
   res.status(200).json(
     new ApiResponse(200, "Password updated successfully", { user })
@@ -126,7 +128,13 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
 
 // Forgot Password
 exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const { email } = req.body || {};
+
+  if (!email) {
+    return next(new ErrorHandler("Please provide email field", 400));
+  }
+
+  const user = await User.findOne({ email });
 
   if (!user) {
     return next(new ErrorHandler("There is no user with email address .", 404));
@@ -161,9 +169,18 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
 // Reset Password
 exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
+  const { token } = req.params || {};
+  const { password, passwordConfirm } = req.body || {};
+
+  if (!password || !passwordConfirm) {
+    return next(new ErrorHandler("Please provide password and passwordConfirm fields", 400));
+  }
+  if (!token) {
+    return next(new ErrorHandler("Token is required", 400));
+  }
   const hashedToken = crypto
     .createHash("sha256")
-    .update(req.params.token)
+    .update(token)
     .digest("hex");
 
   const user = await User.findOne({
@@ -175,8 +192,8 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Token is invalid or has expired", 400));
   }
 
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
 
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
