@@ -24,11 +24,12 @@ app.use('/public', express.static(path.join(__dirname, '../public'))); // serve 
 
 // import routes
 const authRoutes = require('./routes/auth.route');
-
+const restaurantRoutes = require('./routes/restaurant.route');
 
 
 // use routes
 app.use('/api/v1/users', authRoutes);
+app.use('/api/v1/restaurants', restaurantRoutes);
 
 
 

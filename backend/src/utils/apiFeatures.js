@@ -1,4 +1,4 @@
-class APIFeatures {
+class ApiFeatures {
     // query = Product.find()
 
     constructor(query, queryStr) {
@@ -66,7 +66,7 @@ class APIFeatures {
             }
         }
 
-        // Apply the sorting query to the APIFeatures
+        // Apply the sorting query to the ApiFeatures
         this.query = this.query.sort(sortQuery);
 
         //db.sar.find({“Last_Name”:{$gte:“C”}})
@@ -105,4 +105,4 @@ class APIFeatures {
     }
 }
 
-module.exports = APIFeatures;
+module.exports = ApiFeatures;

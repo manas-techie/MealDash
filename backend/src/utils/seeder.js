@@ -8,7 +8,7 @@ const fooditems = require("../data/foodItem.json");
 const { connect } = require("mongoose");
 
 // Setting dotenv file
-dotenv.config({ path: "backend/config/config.env" });
+dotenv.config({ path: "backend/src/config/config.env" });
 
 connectDatabase();
 

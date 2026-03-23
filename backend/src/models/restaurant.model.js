@@ -1,6 +1,11 @@
-const moongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-const restaurantSchema = new moongoose.Schema({
+const restaurantSchema = new mongoose.Schema({
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "Restaurant must have an owner"],
+    },
     name: {
         type: String,
         required: [true, "Please enter restaurant name"],
@@ -49,7 +54,7 @@ const restaurantSchema = new moongoose.Schema({
     reviews: [
         {
             user: {
-                type: moongoose.Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
                 required: true,
             },
@@ -83,4 +88,4 @@ const restaurantSchema = new moongoose.Schema({
 restaurantSchema.index({ location: "2dsphere" });
 restaurantSchema.index({ address: "text" });
 
-module.exports = moongoose.model("Restaurant", restaurantSchema);
+module.exports = mongoose.model("Restaurant", restaurantSchema);
