@@ -5,17 +5,30 @@ const catchAsyncErrors = require("../utils/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorHandler");
 const Email = require("../utils/email");
 const { ApiResponse } = require("../utils/apiResponse");
+const { uploadOnCloudinary } = require("../utils/cloudinary");
 
 
-// Register user
+// REGISTER USER  
 exports.signup = catchAsyncErrors(async (req, res, next) => {
-  const { name, email, password, passwordConfirm, phoneNumber, avatar } = req.body || {};
+  const { name, email, password, passwordConfirm, phoneNumber, role } = req.body || {};
 
   if (!name || !email || !password || !passwordConfirm || !phoneNumber) {
     return next(new ErrorHandler("Please provide all required fields", 400));
   }
 
-  //TODO: add avatar upload functionality using multer and cloudinary
+  // Only allow "user" and "restaurant-owner" during self-registration
+  // Admin role can only be assigned by an existing admin
+  const SELF_ASSIGNABLE_ROLES = ["user", "restaurant-owner"];
+  const assignedRole = role && SELF_ASSIGNABLE_ROLES.includes(role) ? role : "user";
+
+  // Upload avatar to Cloudinary if provided via multer
+  let avatar;
+  if (req.file) {
+    const result = await uploadOnCloudinary(req.file.path, "mealdash/avatars");
+    if (result) {
+      avatar = { public_id: result.public_id, url: result.secure_url };
+    }
+  }
 
   const user = await User.create({
     name,
@@ -24,7 +37,8 @@ exports.signup = catchAsyncErrors(async (req, res, next) => {
     passwordConfirm,
     phoneNumber,
     avatar,
-  })
+    role: assignedRole,
+  });
 
   try {
     const welcomeURL = `${process.env.FRONTEND_URL}/dashboard`;
@@ -36,7 +50,7 @@ exports.signup = catchAsyncErrors(async (req, res, next) => {
   sendToken(user, 201, "User registered successfully", res);
 });
 
-// Login user
+// LOGIN USER
 exports.login = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body || {};
 
@@ -60,7 +74,7 @@ exports.login = catchAsyncErrors(async (req, res, next) => {
   sendToken(user, 200, "Login successful", res);
 });
 
-//logout user
+//LOGOUT USER
 exports.logout = catchAsyncErrors(async (req, res, next) => {
   // res.cookie("jwt", null), {
   //   expires: new Date(Date.now()),
@@ -88,7 +102,7 @@ exports.logout = catchAsyncErrors(async (req, res, next) => {
     );
 })
 
-// get currently logged in user details
+// GET CURRENTLY LOGGED IN USER DETAILS
 exports.getUserDetails = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   res.status(200).json(
@@ -96,7 +110,7 @@ exports.getUserDetails = catchAsyncErrors(async (req, res, next) => {
   );
 })
 
-// Update Password
+// UPDATE PASSWORD
 exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   const { oldPassword, newPassword, newPasswordConfirm } = req.body || {};
 
@@ -126,7 +140,7 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   );
 });
 
-// Forgot Password
+// FORGOT PASSWORD
 exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const { email } = req.body || {};
 

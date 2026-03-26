@@ -39,7 +39,6 @@ const restaurantSchema = new mongoose.Schema({
             type: [Number],
             required: true,
         },
-        required: [true, "Please enter restaurant location"]
     },
     noOfReviews: {
         type: Number,

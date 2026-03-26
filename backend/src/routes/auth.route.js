@@ -9,6 +9,7 @@ const {
 	resetPassword,
 } = require("../controllers/auth.controller");
 const { isAuthenticatedUser } = require("../middleware/auth.middleware");
+const { uploadAvatar } = require("../middleware/multer.middleware");
 
 
 
@@ -16,7 +17,7 @@ const router = express.Router();
 
 
 
-router.post("/signup", signup);
+router.post("/signup", uploadAvatar, signup);
 router.post("/login", login);
 router.post("/logout", isAuthenticatedUser, logout);
 router.get("/me", isAuthenticatedUser, getUserDetails);

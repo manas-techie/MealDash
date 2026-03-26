@@ -9,8 +9,8 @@ class ApiFeatures {
     search() {
         //this.queryStr.keyword -> if keyword exists ie if we type
         //localhost:4000/api/v1/products?keyword=AirPods
-        const keyword = this.queryStr.keyword
-            ? {
+        const keyword = this.queryStr.keyword ?
+            {
                 // search in name field
                 name: {
                     $regex: this.queryStr.keyword,

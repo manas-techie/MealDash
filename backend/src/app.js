@@ -1,4 +1,3 @@
-// configure express and middleware
 // importing packages
 const express = require('express');
 const errorMiddleware = require('./middleware/error.middleware');
@@ -23,13 +22,20 @@ app.use('/public', express.static(path.join(__dirname, '../public'))); // serve 
 
 
 // import routes
+const adminRoutes = require('./routes/admin.route');
 const authRoutes = require('./routes/auth.route');
 const restaurantRoutes = require('./routes/restaurant.route');
+const menuRoutes = require('./routes/menu.route');
+const foodItemRoutes = require('./routes/foodItem.route');
 
 
 // use routes
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/users', authRoutes);
 app.use('/api/v1/restaurants', restaurantRoutes);
+app.use('/api/v1/restaurants/:restaurantId/menus', menuRoutes);
+app.use('/api/v1/restaurants/:restaurantId/food-items', foodItemRoutes);
+
 
 
 
