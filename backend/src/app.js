@@ -27,6 +27,7 @@ const authRoutes = require('./routes/auth.route');
 const restaurantRoutes = require('./routes/restaurant.route');
 const menuRoutes = require('./routes/menu.route');
 const foodItemRoutes = require('./routes/foodItem.route');
+const cartRoutes = require('./routes/cart.route');
 
 
 // use routes
@@ -35,6 +36,7 @@ app.use('/api/v1/users', authRoutes);
 app.use('/api/v1/restaurants', restaurantRoutes);
 app.use('/api/v1/restaurants/:restaurantId/menus', menuRoutes);
 app.use('/api/v1/restaurants/:restaurantId/food-items', foodItemRoutes);
+app.use('/api/v1/cart', cartRoutes);
 
 
 
