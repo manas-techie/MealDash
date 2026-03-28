@@ -1,5 +1,7 @@
 {
   "name": "Mealdash-frontend",
+  "description": "frontend for MealDash, a food ordering application",
+  "author": "Manas Sidh",
   "private": true,
   "version": "0.0.0",
   "type": "module",
