@@ -6,6 +6,7 @@ const {
     updateFoodItem,
     deleteFoodItem,
     toggleAvailability,
+    updateStock,
 } = require("../controllers/foodItem.controller");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth.middleware");
 const { uploadFoodItemImage } = require("../middleware/multer.middleware");
@@ -40,6 +41,12 @@ router.patch(
     isAuthenticatedUser,
     authorizeRoles("restaurant-owner", "admin"),
     toggleAvailability
+);
+router.patch(
+    "/:id/stock",
+    isAuthenticatedUser,
+    authorizeRoles("restaurant-owner", "admin"),
+    updateStock
 );
 
 module.exports = router;

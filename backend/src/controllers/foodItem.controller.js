@@ -13,6 +13,7 @@ const ALLOWED_FIELDS = [
     "category",
     "price",
     "isAvailable",
+    "stock",
 ];
 
 const pickAllowedFields = (body, allowedFields) => {
@@ -98,10 +99,10 @@ exports.createFoodItem = catchAsyncErrors(async (req, res, next) => {
 
     const filteredBody = pickAllowedFields(req.body, ALLOWED_FIELDS);
 
-    const { name, description, category, price } = filteredBody;
-    if (!name || !description || !category || price === undefined) {
+    const { name, description, category, price, stock } = filteredBody;
+    if (!name || !description || !category || price === undefined || stock === undefined) {
         return next(
-            new ErrorHandler("Please provide name, description, category, and price", 400)
+            new ErrorHandler("Please provide name, description, category, price, and stock", 400)
         );
     }
 
@@ -249,5 +250,50 @@ exports.toggleAvailability = catchAsyncErrors(async (req, res, next) => {
         new ApiResponse(200, `Food item marked as ${foodItem.isAvailable ? "available" : "unavailable"}`, {
             foodItem,
         })
+    );
+});
+
+
+// UPDATE STOCK (restaurant-owner / admin)
+exports.updateStock = catchAsyncErrors(async (req, res, next) => {
+    const foodItem = await FoodItem.findById(req.params.id);
+
+    if (!foodItem) {
+        return next(new ErrorHandler("Food item not found", 404));
+    }
+
+    // Verify ownership via restaurant
+    const restaurant = await verifyRestaurantOwnership(
+        foodItem.restaurant,
+        req.user,
+        next
+    );
+    if (!restaurant) return;
+
+    const { stock, operation } = req.body;
+
+    if (stock === undefined || typeof stock !== "number" || stock < 0) {
+        return next(new ErrorHandler("Please provide a valid stock value (non-negative number)", 400));
+    }
+
+    if (operation === "increment") {
+        foodItem.stock += stock;
+    } else if (operation === "decrement") {
+        if (foodItem.stock < stock) {
+            return next(new ErrorHandler("Cannot reduce stock below 0", 400));
+        }
+        foodItem.stock -= stock;
+    } else {
+        // Default: set stock to the provided value
+        foodItem.stock = stock;
+    }
+
+    // Auto-toggle availability based on stock
+    foodItem.isAvailable = foodItem.stock > 0;
+
+    await foodItem.save();
+
+    res.status(200).json(
+        new ApiResponse(200, "Stock updated successfully", { foodItem })
     );
 });

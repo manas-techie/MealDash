@@ -28,6 +28,7 @@ const restaurantRoutes = require('./routes/restaurant.route');
 const menuRoutes = require('./routes/menu.route');
 const foodItemRoutes = require('./routes/foodItem.route');
 const cartRoutes = require('./routes/cart.route');
+const orderRoutes = require('./routes/order.route');
 
 
 // use routes
@@ -37,6 +38,7 @@ app.use('/api/v1/restaurants', restaurantRoutes);
 app.use('/api/v1/restaurants/:restaurantId/menus', menuRoutes);
 app.use('/api/v1/restaurants/:restaurantId/food-items', foodItemRoutes);
 app.use('/api/v1/cart', cartRoutes);
+app.use('/api/v1/orders', orderRoutes);
 
 
 

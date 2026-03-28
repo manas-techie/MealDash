@@ -30,6 +30,11 @@ const foodItemSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    stock: {
+        type: Number,
+        required: [true, "Please enter food item stock"],
+        default: 0
+    },
     reviews: [
         {
             user: {
