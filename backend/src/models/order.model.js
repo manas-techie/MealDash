@@ -64,9 +64,12 @@ const orderSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
+        sessionId: {
+            type: String,
+        },
         status: {
             type: String,
-            enum: ["pending", "completed", "cancelled"],
+            enum: ["pending", "completed", "cancelled", "refunded"],
             required: true,
         },
         method: {

@@ -15,6 +15,11 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true,
 }));
+
+// Stripe webhook needs the raw body (Buffer) for signature verification.
+// Mount this BEFORE bodyParser.json() so it captures the raw bytes.
+app.use('/api/v1/payment/webhook', express.raw({ type: 'application/json' }));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -29,6 +34,7 @@ const menuRoutes = require('./routes/menu.route');
 const foodItemRoutes = require('./routes/foodItem.route');
 const cartRoutes = require('./routes/cart.route');
 const orderRoutes = require('./routes/order.route');
+const paymentRoutes = require('./routes/payment.route');
 
 
 // use routes
@@ -39,6 +45,7 @@ app.use('/api/v1/restaurants/:restaurantId/menus', menuRoutes);
 app.use('/api/v1/restaurants/:restaurantId/food-items', foodItemRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/payment', paymentRoutes);
 
 
 

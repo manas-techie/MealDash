@@ -223,8 +223,25 @@ exports.cancelOrder = catchAsyncErrors(async (req, res, next) => {
         }
     }
 
+    // Issue Stripe refund if paid via Stripe
+    if (order.paymentInfo.method === "stripe" && order.paymentInfo.id) {
+        try {
+            const Stripe = require("stripe");
+            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+            await stripe.refunds.create({
+                payment_intent: order.paymentInfo.id,
+            });
+            order.paymentInfo.status = "refunded";
+        } catch (err) {
+            console.error("Stripe refund failed:", err.message);
+            // Still cancel the order but mark payment as cancelled (manual refund needed)
+            order.paymentInfo.status = "cancelled";
+        }
+    } else {
+        order.paymentInfo.status = "cancelled";
+    }
+
     order.orderStatus = "cancelled";
-    order.paymentInfo.status = "cancelled";
     await order.save();
 
     res.status(200).json(
