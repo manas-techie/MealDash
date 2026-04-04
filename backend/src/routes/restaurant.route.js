@@ -2,6 +2,7 @@ const express = require("express");
 const {
     createRestaurant,
     getAllRestaurants,
+    searchRestaurantsByKeywords,
     getRestaurantDetails,
     updateRestaurant,
     deleteRestaurant,
@@ -13,6 +14,8 @@ const router = express.Router({ mergeParams: true });
 
 
 router.get("/", getAllRestaurants);
+router.get("/search", searchRestaurantsByKeywords);
+router.get("/search/:keyword", searchRestaurantsByKeywords);
 router.get("/:id", getRestaurantDetails);
 router.post(
     "/",
