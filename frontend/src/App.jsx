@@ -1,11 +1,7 @@
-import "./App.css";
+import { UserLayout } from "./components";
 
 function App() {
-  return (
-    <>
-      <h1>MealDash</h1>
-    </>
-  );
+  return <UserLayout />;
 }
 
 export default App;
