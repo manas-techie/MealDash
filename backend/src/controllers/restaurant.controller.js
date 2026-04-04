@@ -27,6 +27,8 @@ const pickAllowedFields = (body, allowedFields) => {
     return filtered;
 };
 
+const escapeRegex = (value = "") => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 
 // GET ALL RESTAURANTS (Public)
 exports.getAllRestaurants = catchAsyncErrors(async (req, res, next) => {
@@ -47,6 +49,46 @@ exports.getAllRestaurants = catchAsyncErrors(async (req, res, next) => {
             totalRestaurants: totalRestaurants,
             resPerPage: resPerPage,
             restaurants: restaurants,
+        })
+    );
+});
+
+
+// SEARCH RESTAURANTS BY KEYWORDS (Public)
+exports.searchRestaurantsByKeywords = catchAsyncErrors(async (req, res, next) => {
+    const rawKeyword = String(req.query.keyword || req.query.q || req.params.keyword || "").trim();
+
+    if (!rawKeyword) {
+        return next(new ErrorHandler("Please provide a keyword to search restaurants", 400));
+    }
+
+    const keywords = rawKeyword
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 8);
+
+    const keywordConditions = keywords.map((word) => {
+        const safeWord = escapeRegex(word);
+
+        return {
+            $or: [
+                { name: { $regex: safeWord, $options: "i" } },
+                { description: { $regex: safeWord, $options: "i" } },
+                { address: { $regex: safeWord, $options: "i" } },
+                { openingHours: { $regex: safeWord, $options: "i" } },
+            ],
+        };
+    });
+
+    const restaurants = await Restaurant.find({ $and: keywordConditions })
+        .sort({ rating: -1, noOfReviews: -1 })
+        .lean();
+
+    res.status(200).json(
+        new ApiResponse(200, "Restaurants fetched successfully", {
+            keyword: rawKeyword,
+            totalRestaurants: restaurants.length,
+            restaurants,
         })
     );
 });
@@ -207,3 +249,4 @@ exports.deleteRestaurant = catchAsyncErrors(async (req, res, next) => {
         new ApiResponse(200, "Restaurant deleted successfully")
     );
 });
+
