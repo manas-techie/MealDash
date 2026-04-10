@@ -11,14 +11,12 @@ import {
   Route,
 } from "react-router-dom";
 import { Home, AllRestaurants, LoginPage, SignupPage } from "./pages/index.js";
-import { Search } from "./components/index.js";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route index element={<Home />} />
       <Route path="/restaurants" element={<AllRestaurants />} />
-      <Route path="/restaurants/search/:keyword" element={<Search />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
     </Route>,

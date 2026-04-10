@@ -10,6 +10,7 @@ import Signup from "./layout/Signup";
 import Container from "./container/Container";
 import Button from "./common/Button";
 import Logo from "./common/Logo";
+import Cart from "./cart/Cart";
 
 
 
@@ -26,5 +27,6 @@ export {
     Signup,
     Container,
     Button,
-    Logo
+    Logo,
+    Cart,
 }

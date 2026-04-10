@@ -1,8 +1,10 @@
 import React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Loader, Container } from "../components";
 
 function Home() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
   const handleChange = (event) => {
@@ -10,7 +12,14 @@ function Home() {
   };
 
   const handleSearch = (nextQuery) => {
-    setQuery(nextQuery);
+    const trimmedQuery = String(nextQuery || "").trim();
+    setQuery(trimmedQuery);
+
+    const target = trimmedQuery
+      ? `/restaurants?keyword=${encodeURIComponent(trimmedQuery)}`
+      : "/restaurants";
+
+    navigate(target);
   };
 
   const handleClear = () => {

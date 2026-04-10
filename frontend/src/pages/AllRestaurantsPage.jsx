@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getRestaurants } from "../redux/actions/restaurant.action";
 import {
@@ -11,13 +12,15 @@ import {
 
 function AllRestaurants() {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const keyword = (searchParams.get("keyword") || "").trim();
   const { restaurants, loading, error } = useSelector(
     (state) => state.restaurants,
   );
 
   useEffect(() => {
-    dispatch(getRestaurants());
-  }, [dispatch]);
+    dispatch(getRestaurants(keyword));
+  }, [dispatch, keyword]);
 
   const mappedRestaurants = restaurants.map((restaurant, index) => ({
     ...restaurant,
@@ -48,6 +51,11 @@ function AllRestaurants() {
               Compare ratings, delivery times, and cuisines in one place before
               you place your next order.
             </p>
+            {keyword ? (
+              <p className="text-sm font-semibold text-orange-200">
+                Showing results for: {keyword}
+              </p>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -80,7 +88,7 @@ function AllRestaurants() {
                 ? error
                 : error.message || "Failed to load restaurants."
             }
-            onRetry={() => dispatch(getRestaurants())}
+            onRetry={() => dispatch(getRestaurants(keyword))}
           />
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
