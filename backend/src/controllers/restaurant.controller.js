@@ -98,6 +98,7 @@ exports.searchRestaurantsByKeywords = catchAsyncErrors(async (req, res, next) =>
 exports.getRestaurantDetails = catchAsyncErrors(async (req, res, next) => {
     const restaurant = await Restaurant.findById(req.params.id)
         .populate("owner", "name email")
+        .populate("reviews.user", "name avatar")
         .lean();
 
     if (!restaurant) {
@@ -106,6 +107,51 @@ exports.getRestaurantDetails = catchAsyncErrors(async (req, res, next) => {
 
     res.status(200).json(
         new ApiResponse(200, "Restaurant details fetched successfully", { restaurant })
+    );
+});
+
+
+// ADD RESTAURANT REVIEW (authenticated user)
+exports.addRestaurantReview = catchAsyncErrors(async (req, res, next) => {
+    const restaurant = await Restaurant.findById(req.params.id);
+
+    if (!restaurant) {
+        return next(new ErrorHandler("Restaurant not found", 404));
+    }
+
+    const rating = Number(req.body.rating);
+    const comment = String(req.body.comment || "").trim();
+
+    if (!Number.isFinite(rating) || rating < 0 || rating > 5) {
+        return next(new ErrorHandler("Please provide a rating between 0 and 5", 400));
+    }
+
+    if (!comment) {
+        return next(new ErrorHandler("Please provide a review comment", 400));
+    }
+
+    restaurant.reviews = restaurant.reviews.filter(
+        (review) => review.user.toString() !== req.user._id.toString()
+    );
+
+    restaurant.reviews.unshift({
+        user: req.user._id,
+        rating,
+        comment,
+    });
+
+    restaurant.noOfReviews = restaurant.reviews.length;
+    restaurant.rating =
+        restaurant.reviews.reduce((sum, review) => sum + review.rating, 0) /
+        restaurant.reviews.length;
+
+    await restaurant.save();
+    await restaurant.populate("reviews.user", "name avatar");
+
+    res.status(200).json(
+        new ApiResponse(200, "Restaurant review added successfully", {
+            restaurant,
+        })
     );
 });
 

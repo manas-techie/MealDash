@@ -2,6 +2,7 @@ const express = require("express");
 const {
     getAllFoodItems,
     getFoodItemDetails,
+    addFoodItemReview,
     createFoodItem,
     updateFoodItem,
     deleteFoodItem,
@@ -16,6 +17,7 @@ const router = express.Router({ mergeParams: true });
 
 router.get("/", getAllFoodItems);
 router.get("/:id", getFoodItemDetails);
+router.post("/:id/reviews", isAuthenticatedUser, addFoodItemReview);
 router.post(
     "/",
     isAuthenticatedUser,

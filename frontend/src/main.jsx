@@ -10,13 +10,28 @@ import {
   RouterProvider,
   Route,
 } from "react-router-dom";
-import { Home, AllRestaurants, LoginPage, SignupPage } from "./pages/index.js";
+import {
+  Home,
+  AllRestaurants,
+  RestaurantDetailsPage,
+  FoodItemDetailsPage,
+  LoginPage,
+  SignupPage,
+} from "./pages/index.js";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route index element={<Home />} />
       <Route path="/restaurants" element={<AllRestaurants />} />
+      <Route
+        path="/restaurants/:restaurantId"
+        element={<RestaurantDetailsPage />}
+      />
+      <Route
+        path="/restaurants/:restaurantId/food-items/:foodItemId"
+        element={<FoodItemDetailsPage />}
+      />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
     </Route>,

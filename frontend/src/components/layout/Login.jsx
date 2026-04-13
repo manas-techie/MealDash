@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Container, Logo, Button } from "../index.js";
 
-function Login({ onSubmit, isLoading = false }) {
+function Login({ onSubmit, isLoading = false, values, onChange, error }) {
   const handleSubmit = (event) => {
     if (!onSubmit) {
       event.preventDefault();
@@ -34,6 +34,9 @@ function Login({ onSubmit, isLoading = false }) {
               type="email"
               required
               placeholder="you@example.com"
+              name="email"
+              value={values?.email || ""}
+              onChange={onChange}
               className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-orange-300/40"
             />
           </label>
@@ -46,9 +49,18 @@ function Login({ onSubmit, isLoading = false }) {
               type="password"
               required
               placeholder="Enter your password"
+              name="password"
+              value={values?.password || ""}
+              onChange={onChange}
               className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-orange-300/40"
             />
           </label>
+
+          {error ? (
+            <div className="rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+              {error}
+            </div>
+          ) : null}
 
           <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <Button

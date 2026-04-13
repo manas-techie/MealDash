@@ -4,6 +4,7 @@ const {
     getAllRestaurants,
     searchRestaurantsByKeywords,
     getRestaurantDetails,
+    addRestaurantReview,
     updateRestaurant,
     deleteRestaurant,
 } = require("../controllers/restaurant.controller");
@@ -17,6 +18,7 @@ router.get("/", getAllRestaurants);
 router.get("/search", searchRestaurantsByKeywords);
 router.get("/search/:keyword", searchRestaurantsByKeywords);
 router.get("/:id", getRestaurantDetails);
+router.post("/:id/reviews", isAuthenticatedUser, addRestaurantReview);
 router.post(
     "/",
     isAuthenticatedUser,

@@ -4,6 +4,7 @@ import Loader from "./common/Loader";
 import Error from "./common/Error";
 import Search from "./common/Search";
 import RestaurantCard from "./restaurant/RestaurantCard";
+import FoodItemCard from "./restaurant/FoodItemCard";
 import UserLayout from "./layout/UserLayout";
 import Login from "./layout/Login";
 import Signup from "./layout/Signup";
@@ -22,6 +23,7 @@ export {
     Error,
     Search,
     RestaurantCard,
+    FoodItemCard,
     UserLayout,
     Login,
     Signup,

@@ -77,6 +77,7 @@ exports.getFoodItemDetails = catchAsyncErrors(async (req, res, next) => {
     const foodItem = await FoodItem.findById(req.params.id)
         .populate("menu", "menu")
         .populate("restaurant", "name")
+        .populate("reviews.user", "name avatar")
         .lean();
 
     if (!foodItem) {
@@ -85,6 +86,46 @@ exports.getFoodItemDetails = catchAsyncErrors(async (req, res, next) => {
 
     res.status(200).json(
         new ApiResponse(200, "Food item fetched successfully", { foodItem })
+    );
+});
+
+
+// ADD FOOD ITEM REVIEW (authenticated user)
+exports.addFoodItemReview = catchAsyncErrors(async (req, res, next) => {
+    const foodItem = await FoodItem.findById(req.params.id);
+
+    if (!foodItem) {
+        return next(new ErrorHandler("Food item not found", 404));
+    }
+
+    const rating = Number(req.body.rating);
+    const comment = String(req.body.comment || "").trim();
+
+    if (!Number.isFinite(rating) || rating < 0 || rating > 5) {
+        return next(new ErrorHandler("Please provide a rating between 0 and 5", 400));
+    }
+
+    if (!comment) {
+        return next(new ErrorHandler("Please provide a review comment", 400));
+    }
+
+    foodItem.reviews = foodItem.reviews.filter(
+        (review) => review.user.toString() !== req.user._id.toString()
+    );
+
+    foodItem.reviews.unshift({
+        user: req.user._id,
+        rating,
+        comment,
+    });
+
+    await foodItem.save();
+    await foodItem.populate("reviews.user", "name avatar");
+
+    res.status(200).json(
+        new ApiResponse(200, "Food item review added successfully", {
+            foodItem,
+        })
     );
 });
 

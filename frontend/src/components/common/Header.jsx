@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FiMenu, FiSearch, FiX } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Logo, Container } from "../index.js";
 import Cart from "../cart/Cart.jsx";
+import { logout } from "../../redux/actions/auth.action";
 
 const navItems = [
   { label: "Home", to: "/" },
@@ -10,12 +12,14 @@ const navItems = [
 ];
 
 function Header() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const { user } = useSelector((state) => state.auth);
 
   const isOnRestaurants = location.pathname === "/restaurants";
   const isSupportActive = location.hash === "#support";
@@ -38,6 +42,12 @@ function Header() {
     navigate(target);
     setIsSearchOpen(false);
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+    navigate("/");
+    closePanels();
   };
 
   return (
@@ -88,22 +98,38 @@ function Header() {
             onClick={() => setIsCartOpen((prev) => !prev)}
           />
           <div className="hidden md:flex md:items-center md:gap-3">
-            <Button
-              onClick={() => navigate("/login")}
-              variant="secondary"
-              size="md"
-            >
-              Sign in
-            </Button>
-            <Button
-              onClick={() =>
-                navigate(isOnRestaurants ? "/restaurants" : "/#menu")
-              }
-              variant="primary"
-              size="md"
-            >
-              Order now
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <div className="flex flex-col leading-tight">
+                  <span className="text-sm font-semibold text-white">
+                    {user.name}
+                  </span>
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-slate-300">
+                    {user.role}
+                  </span>
+                </div>
+                <Button onClick={handleLogout} variant="secondary" size="sm">
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button
+                  onClick={() => navigate("/login")}
+                  variant="secondary"
+                  size="md"
+                >
+                  Sign in
+                </Button>
+                <Button
+                  onClick={() => navigate("/signup")}
+                  variant="primary"
+                  size="md"
+                >
+                  Sign up
+                </Button>
+              </>
+            )}
           </div>
           <Button
             onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -221,28 +247,41 @@ function Header() {
             </a>
 
             <div className="flex gap-2 pt-1">
-              <Button
-                onClick={() => {
-                  navigate("/login");
-                  closePanels();
-                }}
-                variant="secondary"
-                size="md"
-                className="flex-1"
-              >
-                Sign in
-              </Button>
-              <Button
-                onClick={() => {
-                  navigate("/#menu");
-                  closePanels();
-                }}
-                variant="primary"
-                size="md"
-                className="flex-1"
-              >
-                Order now
-              </Button>
+              {user ? (
+                <Button
+                  onClick={handleLogout}
+                  variant="primary"
+                  size="md"
+                  className="flex-1"
+                >
+                  Logout
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    onClick={() => {
+                      navigate("/login");
+                      closePanels();
+                    }}
+                    variant="secondary"
+                    size="md"
+                    className="flex-1"
+                  >
+                    Sign in
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      navigate("/signup");
+                      closePanels();
+                    }}
+                    variant="primary"
+                    size="md"
+                    className="flex-1"
+                  >
+                    Sign up
+                  </Button>
+                </>
+              )}
             </div>
           </Container>
         </div>
