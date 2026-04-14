@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button, Container, Error, FoodItemCard, Loader } from "../components";
 import {
+  generateRestaurantReviewSummary,
   getApiErrorMessage,
   getCurrentUser,
   getRestaurantDetails,
@@ -47,6 +48,9 @@ function RestaurantDetailsPage() {
   const [reviewMessage, setReviewMessage] = useState("");
   const [reviewError, setReviewError] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [aiSummary, setAiSummary] = useState("");
+  const [aiSummaryError, setAiSummaryError] = useState("");
+  const [generatingAiSummary, setGeneratingAiSummary] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -124,6 +128,25 @@ function RestaurantDetailsPage() {
       );
     } finally {
       setSubmittingReview(false);
+    }
+  };
+
+  const handleGenerateAiSummary = async () => {
+    setGeneratingAiSummary(true);
+    setAiSummaryError("");
+
+    try {
+      const summary = await generateRestaurantReviewSummary(restaurantId);
+      setAiSummary(summary?.text || "");
+    } catch (requestError) {
+      setAiSummaryError(
+        getApiErrorMessage(
+          requestError,
+          "Unable to generate AI summary right now.",
+        ),
+      );
+    } finally {
+      setGeneratingAiSummary(false);
     }
   };
 
@@ -437,6 +460,42 @@ function RestaurantDetailsPage() {
           </div>
 
           <div className="space-y-4">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="text-base font-bold text-white">
+                  AI review summary
+                </h3>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleGenerateAiSummary}
+                  disabled={generatingAiSummary}
+                >
+                  {generatingAiSummary
+                    ? "Generating summary..."
+                    : "Generate AI summary"}
+                </Button>
+              </div>
+
+              {aiSummary ? (
+                <p className="mt-3 text-sm leading-6 text-slate-200">
+                  {aiSummary}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm text-slate-300">
+                  Click the button to generate an overall summary from all
+                  reviews.
+                </p>
+              )}
+
+              {aiSummaryError ? (
+                <div className="mt-3 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+                  {aiSummaryError}
+                </div>
+              ) : null}
+            </div>
+
             {restaurantReviews.length > 0 ? (
               restaurantReviews.map((review) => (
                 <article

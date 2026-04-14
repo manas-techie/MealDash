@@ -9,7 +9,10 @@ const {
     toggleAvailability,
     updateStock,
 } = require("../controllers/foodItem.controller");
-const { generateFoodItemDescription } = require("../controllers/ai.controller");
+const {
+    generateFoodItemDescription,
+    generateFoodItemReviewSummary,
+} = require("../controllers/ai.controller");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth.middleware");
 const { uploadFoodItemImage } = require("../middleware/multer.middleware");
 
@@ -17,6 +20,7 @@ const router = express.Router({ mergeParams: true });
 
 
 router.get("/", getAllFoodItems);
+router.get("/:id/reviews/summary", generateFoodItemReviewSummary);
 router.post(
     "/generate-description",
     isAuthenticatedUser,

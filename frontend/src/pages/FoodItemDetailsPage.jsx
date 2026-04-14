@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Button, Container, Error, Loader } from "../components";
 import {
+  generateFoodItemReviewSummary,
   getApiErrorMessage,
   getCurrentUser,
   getFoodItemDetails,
@@ -51,6 +52,9 @@ function FoodItemDetailsPage() {
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState("");
   const [cartMessageIsError, setCartMessageIsError] = useState(false);
+  const [aiSummary, setAiSummary] = useState("");
+  const [aiSummaryError, setAiSummaryError] = useState("");
+  const [generatingAiSummary, setGeneratingAiSummary] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -169,6 +173,28 @@ function FoodItemDetailsPage() {
       setCartMessage(message);
     } finally {
       setAddingToCart(false);
+    }
+  };
+
+  const handleGenerateAiSummary = async () => {
+    setGeneratingAiSummary(true);
+    setAiSummaryError("");
+
+    try {
+      const summary = await generateFoodItemReviewSummary(
+        restaurantId,
+        foodItemId,
+      );
+      setAiSummary(summary?.text || "");
+    } catch (requestError) {
+      setAiSummaryError(
+        getApiErrorMessage(
+          requestError,
+          "Unable to generate AI summary right now.",
+        ),
+      );
+    } finally {
+      setGeneratingAiSummary(false);
     }
   };
 
@@ -453,6 +479,42 @@ function FoodItemDetailsPage() {
           </div>
 
           <div className="space-y-4">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="text-base font-bold text-white">
+                  AI review summary
+                </h3>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleGenerateAiSummary}
+                  disabled={generatingAiSummary}
+                >
+                  {generatingAiSummary
+                    ? "Generating summary..."
+                    : "Generate AI summary"}
+                </Button>
+              </div>
+
+              {aiSummary ? (
+                <p className="mt-3 text-sm leading-6 text-slate-200">
+                  {aiSummary}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm text-slate-300">
+                  Click the button to generate an overall summary from all
+                  reviews.
+                </p>
+              )}
+
+              {aiSummaryError ? (
+                <div className="mt-3 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+                  {aiSummaryError}
+                </div>
+              ) : null}
+            </div>
+
             {foodItem.reviews?.length > 0 ? (
               foodItem.reviews.map((review) => (
                 <article

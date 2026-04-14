@@ -1,5 +1,7 @@
 const Restaurant = require("../models/restaurant.model");
+const FoodItem = require("../models/foodItem.model");
 const { generateDishDescription } = require("../../services/ai.service");
+const { generateReviewSummary } = require("../../services/aiReviewAnalyzer.service");
 const catchAsyncErrors = require("../utils/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorHandler");
 const { ApiResponse } = require("../utils/apiResponse");
@@ -59,6 +61,114 @@ exports.generateFoodItemDescription = catchAsyncErrors(async (req, res, next) =>
     res.status(200).json(
         new ApiResponse(200, "Food item description generated successfully", {
             descriptionData,
+        })
+    );
+});
+
+exports.generateRestaurantReviewSummary = catchAsyncErrors(async (req, res, next) => {
+    const restaurant = await Restaurant.findById(req.params.id).lean();
+
+    if (!restaurant) {
+        return next(new ErrorHandler("Restaurant not found", 404));
+    }
+
+    const reviews = Array.isArray(restaurant.reviews) ? restaurant.reviews : [];
+
+    if (reviews.length < 2) {
+        return res.status(200).json(
+            new ApiResponse(200, "Restaurant review summary generated successfully", {
+                summary: {
+                    text: "Not enough reviews yet to generate a reliable summary.",
+                    totalReviews: reviews.length,
+                    averageRating: Number(restaurant.rating || 0).toFixed(1),
+                    generatedAt: new Date().toISOString(),
+                },
+            })
+        );
+    }
+
+    if (!process.env.GROQ_API_KEY) {
+        return next(new ErrorHandler("AI service is not configured on server", 500));
+    }
+
+    const summaryText = await generateReviewSummary({
+        entityType: "restaurant",
+        entityName: restaurant.name,
+        averageRating: restaurant.rating,
+        totalReviews: reviews.length,
+        reviews,
+    });
+
+    if (!summaryText) {
+        return next(new ErrorHandler("AI could not generate a valid review summary", 502));
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Restaurant review summary generated successfully", {
+            summary: {
+                text: summaryText,
+                totalReviews: reviews.length,
+                averageRating: Number(restaurant.rating || 0).toFixed(1),
+                generatedAt: new Date().toISOString(),
+            },
+        })
+    );
+});
+
+exports.generateFoodItemReviewSummary = catchAsyncErrors(async (req, res, next) => {
+    const { restaurantId, id } = req.params;
+
+    const foodItem = await FoodItem.findOne({
+        _id: id,
+        restaurant: restaurantId,
+    }).lean();
+
+    if (!foodItem) {
+        return next(new ErrorHandler("Food item not found", 404));
+    }
+
+    const reviews = Array.isArray(foodItem.reviews) ? foodItem.reviews : [];
+    const averageRating = reviews.length
+        ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length
+        : 0;
+
+    if (reviews.length < 2) {
+        return res.status(200).json(
+            new ApiResponse(200, "Food item review summary generated successfully", {
+                summary: {
+                    text: "Not enough reviews yet to generate a reliable summary.",
+                    totalReviews: reviews.length,
+                    averageRating: Number(averageRating || 0).toFixed(1),
+                    generatedAt: new Date().toISOString(),
+                },
+            })
+        );
+    }
+
+    if (!process.env.GROQ_API_KEY) {
+        return next(new ErrorHandler("AI service is not configured on server", 500));
+    }
+
+    const summaryText = await generateReviewSummary({
+        entityType: "food item",
+        entityName: foodItem.name,
+        averageRating,
+        totalReviews: reviews.length,
+        reviews,
+    });
+
+    if (!summaryText) {
+        return next(new ErrorHandler("AI could not generate a valid review summary", 502));
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Food item review summary generated successfully", {
+            summary: {
+                text: summaryText,
+                totalReviews: reviews.length,
+                averageRating: Number(averageRating || 0).toFixed(1),
+                generatedAt: new Date().toISOString(),
+            },
         })
     );
 });

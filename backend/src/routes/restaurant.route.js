@@ -8,6 +8,7 @@ const {
     updateRestaurant,
     deleteRestaurant,
 } = require("../controllers/restaurant.controller");
+const { generateRestaurantReviewSummary } = require("../controllers/ai.controller");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth.middleware");
 const { uploadRestaurantImages } = require("../middleware/multer.middleware");
 
@@ -17,6 +18,7 @@ const router = express.Router({ mergeParams: true });
 router.get("/", getAllRestaurants);
 router.get("/search", searchRestaurantsByKeywords);
 router.get("/search/:keyword", searchRestaurantsByKeywords);
+router.get("/:id/reviews/summary", generateRestaurantReviewSummary);
 router.get("/:id", getRestaurantDetails);
 router.post("/:id/reviews", isAuthenticatedUser, addRestaurantReview);
 router.post(

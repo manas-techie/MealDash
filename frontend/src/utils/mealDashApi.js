@@ -119,6 +119,11 @@ export async function postRestaurantReview(restaurantId, payload) {
     return response.data?.data?.restaurant || null;
 }
 
+export async function generateRestaurantReviewSummary(restaurantId) {
+    const response = await api.get(`/restaurants/${restaurantId}/reviews/summary`);
+    return response.data?.data?.summary || null;
+}
+
 export async function getFoodItemDetails(restaurantId, foodItemId) {
     const response = await api.get(`/restaurants/${restaurantId}/food-items/${foodItemId}`);
     return response.data?.data?.foodItem || null;
@@ -130,6 +135,13 @@ export async function postFoodItemReview(restaurantId, foodItemId, payload) {
         payload,
     );
     return response.data?.data?.foodItem || null;
+}
+
+export async function generateFoodItemReviewSummary(restaurantId, foodItemId) {
+    const response = await api.get(
+        `/restaurants/${restaurantId}/food-items/${foodItemId}/reviews/summary`,
+    );
+    return response.data?.data?.summary || null;
 }
 
 export async function addFoodItemToCart(foodItemId, quantity = 1) {
