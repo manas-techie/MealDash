@@ -13,6 +13,7 @@ import {
   createRestaurantFoodItem,
   createRestaurantMenu,
   deleteRestaurantMenu,
+  generateRestaurantFoodItemDescription,
   getApiErrorMessage,
   getCurrentUser,
   getRestaurantDetails,
@@ -28,8 +29,10 @@ function OwnerMenuStudioPage() {
 
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [aiSpiceLevel, setAiSpiceLevel] = useState("medium");
 
   const [restaurant, setRestaurant] = useState(null);
   const [menus, setMenus] = useState([]);
@@ -229,6 +232,7 @@ function OwnerMenuStudioPage() {
 
   const resetFoodItemForm = () => {
     setEditingFoodItemId("");
+    setAiSpiceLevel("medium");
     setFoodItemForm({
       name: "",
       description: "",
@@ -242,6 +246,7 @@ function OwnerMenuStudioPage() {
 
   const handleStartEditFoodItem = (item) => {
     setEditingFoodItemId(item._id);
+    setAiSpiceLevel("medium");
     setFoodItemForm({
       name: item.name || "",
       description: item.description || "",
@@ -264,6 +269,58 @@ function OwnerMenuStudioPage() {
     isAvailable: String(Boolean(foodItemForm.isAvailable)),
     image: foodItemForm.image,
   });
+
+  const handleGenerateDescription = async () => {
+    if (!foodItemForm.name.trim()) {
+      setError("Enter a food item name before generating description.");
+      return;
+    }
+
+    if (!foodItemForm.category.trim()) {
+      setError("Enter a category before generating description.");
+      return;
+    }
+
+    if (foodItemForm.price === "" || Number(foodItemForm.price) < 0) {
+      setError("Please provide a valid price before using AI.");
+      return;
+    }
+
+    setIsGeneratingDescription(true);
+    setError("");
+    setNotice("");
+
+    try {
+      const generated = await generateRestaurantFoodItemDescription(
+        restaurantId,
+        {
+          name: foodItemForm.name.trim(),
+          category: foodItemForm.category.trim(),
+          spiceLevel: aiSpiceLevel,
+          price: Number(foodItemForm.price),
+        },
+      );
+
+      if (!generated?.description) {
+        throw new Error("AI returned an invalid description response.");
+      }
+
+      setFoodItemForm((prev) => ({
+        ...prev,
+        description: generated.description,
+      }));
+      setNotice("AI description generated and applied to the form.");
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(
+          requestError,
+          "Unable to generate AI description right now.",
+        ),
+      );
+    } finally {
+      setIsGeneratingDescription(false);
+    }
+  };
 
   const validateFoodItemForm = (isCreate) => {
     if (isCreate && !selectedMenuId) {
@@ -673,7 +730,7 @@ function OwnerMenuStudioPage() {
                         {item.name}
                       </span>
                       <span className="block text-xs text-slate-300">
-                        {item.category} • ${Number(item.price || 0).toFixed(2)}
+                        {item.category} • ₹{Number(item.price || 0).toFixed(2)}
                       </span>
                     </span>
                   </label>
@@ -770,6 +827,39 @@ function OwnerMenuStudioPage() {
                   className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-white outline-none"
                 />
               </label>
+
+              <label className="space-y-1">
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
+                  AI spice profile
+                </span>
+                <select
+                  value={aiSpiceLevel}
+                  onChange={(event) => setAiSpiceLevel(event.target.value)}
+                  className="h-11 w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 text-sm text-white outline-none"
+                >
+                  <option value="mild">Mild</option>
+                  <option value="medium">Medium</option>
+                  <option value="hot">Hot</option>
+                </select>
+              </label>
+
+              <div className="space-y-1">
+                <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
+                  AI helper
+                </span>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  className="w-full"
+                  onClick={handleGenerateDescription}
+                  disabled={processing || isGeneratingDescription}
+                >
+                  {isGeneratingDescription
+                    ? "Generating description..."
+                    : "Generate description with AI"}
+                </Button>
+              </div>
 
               <label className="space-y-1">
                 <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
@@ -887,7 +977,7 @@ function OwnerMenuStudioPage() {
                         {item.name}
                       </p>
                       <p className="text-xs text-slate-300">
-                        {item.category} • ${Number(item.price || 0).toFixed(2)}{" "}
+                        {item.category} • ₹{Number(item.price || 0).toFixed(2)}{" "}
                         • stock {item.stock}
                       </p>
                     </div>

@@ -9,6 +9,7 @@ const {
     toggleAvailability,
     updateStock,
 } = require("../controllers/foodItem.controller");
+const { generateFoodItemDescription } = require("../controllers/ai.controller");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth.middleware");
 const { uploadFoodItemImage } = require("../middleware/multer.middleware");
 
@@ -16,6 +17,12 @@ const router = express.Router({ mergeParams: true });
 
 
 router.get("/", getAllFoodItems);
+router.post(
+    "/generate-description",
+    isAuthenticatedUser,
+    authorizeRoles("restaurant-owner", "admin"),
+    generateFoodItemDescription
+);
 router.get("/:id", getFoodItemDetails);
 router.post("/:id/reviews", isAuthenticatedUser, addFoodItemReview);
 router.post(

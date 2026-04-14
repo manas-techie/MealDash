@@ -70,7 +70,7 @@ function OrdersPage() {
 
                 <div className="text-left sm:text-right">
                   <p className="text-base font-bold text-white">
-                    ${Number(order.totalAmount || 0).toFixed(2)}
+                    ₹{Number(order.totalAmount || 0).toFixed(2)}
                   </p>
                   <p className="text-xs uppercase tracking-[0.18em] text-orange-100">
                     {order.orderStatus}

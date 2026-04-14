@@ -281,7 +281,7 @@ function AdminPanelPage() {
               Delivered Revenue
             </p>
             <p className="mt-2 text-3xl font-black text-white">
-              ${totalRevenue.toFixed(2)}
+              ₹{totalRevenue.toFixed(2)}
             </p>
           </div>
         </div>
@@ -428,7 +428,7 @@ function AdminPanelPage() {
                           {order.restaurant?.name || "Restaurant"}
                         </p>
                         <p className="mt-1 text-xs text-slate-300">
-                          Amount: ${Number(order.totalAmount || 0).toFixed(2)}
+                          Amount: ₹{Number(order.totalAmount || 0).toFixed(2)}
                         </p>
                         <p className="text-[11px] uppercase tracking-[0.18em] text-cyan-200">
                           Current: {order.orderStatus}

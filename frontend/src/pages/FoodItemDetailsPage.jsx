@@ -265,7 +265,7 @@ function FoodItemDetailsPage() {
                 </div>
                 <div className="rounded-3xl bg-slate-950/80 px-4 py-3 text-right backdrop-blur">
                   <div className="text-3xl font-black text-white">
-                    ${Number(foodItem.price || 0).toFixed(2)}
+                    ₹{Number(foodItem.price || 0).toFixed(2)}
                   </div>
                   <div className="text-xs font-medium uppercase tracking-[0.2em] text-slate-300">
                     Price

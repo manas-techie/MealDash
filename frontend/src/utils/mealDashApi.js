@@ -105,6 +105,15 @@ export async function updateRestaurantFoodItem(restaurantId, foodItemId, payload
     return response.data?.data?.foodItem || null;
 }
 
+export async function generateRestaurantFoodItemDescription(restaurantId, payload) {
+    const response = await api.post(
+        `/restaurants/${restaurantId}/food-items/generate-description`,
+        payload,
+    );
+
+    return response.data?.data?.descriptionData || null;
+}
+
 export async function postRestaurantReview(restaurantId, payload) {
     const response = await api.post(`/restaurants/${restaurantId}/reviews`, payload);
     return response.data?.data?.restaurant || null;

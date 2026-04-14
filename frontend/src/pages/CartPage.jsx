@@ -184,10 +184,10 @@ function CartPage() {
                         {foodItem.name}
                       </h3>
                       <p className="text-sm text-slate-300">
-                        ${Number(item.price || 0).toFixed(2)} each
+                        ₹{Number(item.price || 0).toFixed(2)} each
                       </p>
                       <p className="mt-1 text-sm text-orange-100">
-                        ${itemTotal.toFixed(2)}
+                        ₹{itemTotal.toFixed(2)}
                       </p>
                     </div>
 
@@ -274,19 +274,19 @@ function CartPage() {
               <div className="space-y-2 rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-sm">
                 <div className="flex justify-between text-slate-200">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-slate-200">
                   <span>Tax</span>
-                  <span>${taxAmount.toFixed(2)}</span>
+                  <span>₹{taxAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-slate-200">
                   <span>Delivery</span>
-                  <span>${deliveryCharge.toFixed(2)}</span>
+                  <span>₹{deliveryCharge.toFixed(2)}</span>
                 </div>
                 <div className="mt-2 flex justify-between border-t border-white/10 pt-2 text-base font-bold text-white">
                   <span>Total</span>
-                  <span>${grandTotal.toFixed(2)}</span>
+                  <span>₹{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
 
