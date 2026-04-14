@@ -8,6 +8,7 @@ import CartPage from "./CartPage";
 import OrdersPage from "./OrdersPage";
 import OrderSuccessPage from "./OrderSuccessPage";
 import SupportPage from "./SupportPage";
+import OwnerMenuStudioPage from "./OwnerMenuStudioPage";
 
 export {
     Home,
@@ -20,4 +21,5 @@ export {
     OrdersPage,
     OrderSuccessPage,
     SupportPage,
+    OwnerMenuStudioPage,
 };

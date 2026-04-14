@@ -206,6 +206,7 @@ exports.updateFoodItem = catchAsyncErrors(async (req, res, next) => {
     if (!restaurant) return;
 
     const filteredBody = pickAllowedFields(req.body, ALLOWED_FIELDS);
+    const previousCategory = foodItem.category;
 
     // Upload new image if provided
     if (req.file) {
@@ -224,6 +225,46 @@ exports.updateFoodItem = catchAsyncErrors(async (req, res, next) => {
         new: true,
         runValidators: true,
     });
+
+    // If category changed, move this food item between menu categories.
+    if (
+        foodItem.menu &&
+        filteredBody.category &&
+        filteredBody.category !== previousCategory
+    ) {
+        const menuDoc = await Menu.findById(foodItem.menu);
+
+        if (menuDoc) {
+            const oldCategory = menuDoc.menu.find(
+                (section) => section.category === previousCategory
+            );
+            if (oldCategory) {
+                oldCategory.items = oldCategory.items.filter(
+                    (itemId) => itemId.toString() !== foodItem._id.toString()
+                );
+            }
+
+            const newCategory = menuDoc.menu.find(
+                (section) => section.category === filteredBody.category
+            );
+
+            if (newCategory) {
+                const alreadyPresent = newCategory.items.some(
+                    (itemId) => itemId.toString() === foodItem._id.toString()
+                );
+                if (!alreadyPresent) {
+                    newCategory.items.push(foodItem._id);
+                }
+            } else {
+                menuDoc.menu.push({
+                    category: filteredBody.category,
+                    items: [foodItem._id],
+                });
+            }
+
+            await menuDoc.save();
+        }
+    }
 
     res.status(200).json(
         new ApiResponse(200, "Food item updated successfully", { foodItem })

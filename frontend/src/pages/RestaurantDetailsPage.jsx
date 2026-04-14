@@ -198,6 +198,9 @@ function RestaurantDetailsPage() {
   }
 
   const averageRating = Number(restaurant.rating || 0).toFixed(1);
+  const canManageMenu =
+    currentUser?.role === "admin" ||
+    restaurant?.owner?._id === currentUser?._id;
 
   return (
     <Container className="py-10 lg:py-14">
@@ -220,6 +223,15 @@ function RestaurantDetailsPage() {
               >
                 Reviews
               </a>
+              {canManageMenu ? (
+                <Button
+                  to={`/restaurants/${restaurantId}/manage-menu`}
+                  variant="light"
+                  size="md"
+                >
+                  Manage menu
+                </Button>
+              ) : null}
             </div>
 
             <div className="max-w-3xl space-y-4">

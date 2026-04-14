@@ -30,9 +30,79 @@ export async function getRestaurantMenus(restaurantId) {
     return response.data?.data?.menus || [];
 }
 
+export async function createRestaurantMenu(restaurantId, menu = []) {
+    const response = await api.post(`/restaurants/${restaurantId}/menus`, { menu });
+    return response.data?.data?.menu || null;
+}
+
+export async function deleteRestaurantMenu(restaurantId, menuId) {
+    const response = await api.delete(`/restaurants/${restaurantId}/menus/${menuId}`);
+    return response.data?.data || {};
+}
+
+export async function addItemsToRestaurantMenu(
+    restaurantId,
+    menuId,
+    payload,
+) {
+    const response = await api.post(
+        `/restaurants/${restaurantId}/menus/${menuId}/items`,
+        payload,
+    );
+    return response.data?.data?.menu || null;
+}
+
+export async function removeItemsFromRestaurantMenu(
+    restaurantId,
+    menuId,
+    payload,
+) {
+    const response = await api.delete(
+        `/restaurants/${restaurantId}/menus/${menuId}/items`,
+        { data: payload },
+    );
+    return response.data?.data?.menu || null;
+}
+
 export async function getRestaurantFoodItems(restaurantId) {
     const response = await api.get(`/restaurants/${restaurantId}/food-items`);
     return response.data?.data?.foodItems || [];
+}
+
+export async function createRestaurantFoodItem(restaurantId, payload) {
+    const formData = new FormData();
+
+    Object.entries(payload || {}).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") {
+            return;
+        }
+        formData.append(key, value);
+    });
+
+    const response = await api.post(
+        `/restaurants/${restaurantId}/food-items`,
+        formData,
+    );
+
+    return response.data?.data?.foodItem || null;
+}
+
+export async function updateRestaurantFoodItem(restaurantId, foodItemId, payload) {
+    const formData = new FormData();
+
+    Object.entries(payload || {}).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") {
+            return;
+        }
+        formData.append(key, value);
+    });
+
+    const response = await api.put(
+        `/restaurants/${restaurantId}/food-items/${foodItemId}`,
+        formData,
+    );
+
+    return response.data?.data?.foodItem || null;
 }
 
 export async function postRestaurantReview(restaurantId, payload) {
