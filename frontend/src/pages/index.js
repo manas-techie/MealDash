@@ -9,6 +9,7 @@ import OrdersPage from "./OrdersPage";
 import OrderSuccessPage from "./OrderSuccessPage";
 import SupportPage from "./SupportPage";
 import OwnerMenuStudioPage from "./OwnerMenuStudioPage";
+import AdminPanelPage from "./AdminPanelPage";
 
 export {
     Home,
@@ -22,4 +23,5 @@ export {
     OrderSuccessPage,
     SupportPage,
     OwnerMenuStudioPage,
+    AdminPanelPage,
 };

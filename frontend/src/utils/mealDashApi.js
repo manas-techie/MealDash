@@ -180,6 +180,37 @@ export async function cancelMyOrder(orderId) {
     return response.data?.data?.order || null;
 }
 
+export async function getAdminUsers() {
+    const response = await api.get("/admin/users");
+    return response.data?.data?.users || [];
+}
+
+export async function updateAdminUserRole(userId, role) {
+    const response = await api.patch(`/admin/users/${userId}/role`, { role });
+    return response.data?.data?.user || null;
+}
+
+export async function deleteAdminUser(userId) {
+    const response = await api.delete(`/admin/users/${userId}`);
+    return response.data?.data || {};
+}
+
+export async function getAdminOrders(status) {
+    const response = await api.get("/orders/admin/all", {
+        params: status ? { status } : undefined,
+    });
+
+    return {
+        orders: response.data?.data?.orders || [],
+        totalRevenue: Number(response.data?.data?.totalRevenue || 0),
+    };
+}
+
+export async function updateOrderStatus(orderId, status) {
+    const response = await api.patch(`/orders/${orderId}/status`, { status });
+    return response.data?.data?.order || null;
+}
+
 export function getApiErrorMessage(error, fallback = "Something went wrong") {
     return (
         error?.response?.data?.message ||

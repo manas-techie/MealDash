@@ -22,6 +22,7 @@ import {
   OrderSuccessPage,
   SupportPage,
   OwnerMenuStudioPage,
+  AdminPanelPage,
 } from "./pages/index.js";
 
 const router = createBrowserRouter(
@@ -45,6 +46,7 @@ const router = createBrowserRouter(
         path="/restaurants/:restaurantId/manage-menu"
         element={<OwnerMenuStudioPage />}
       />
+      <Route path="/admin" element={<AdminPanelPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
     </Route>,

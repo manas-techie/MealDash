@@ -99,6 +99,20 @@ function Header() {
               Orders
             </NavLink>
           ) : null}
+          {user?.role === "admin" ? (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                  isActive
+                    ? "bg-orange-400/15 text-orange-200 ring-1 ring-orange-300/30"
+                    : "text-slate-200 hover:bg-white/5 hover:text-white"
+                }`
+              }
+            >
+              Admin
+            </NavLink>
+          ) : null}
           <NavLink
             to="/support"
             className={({ isActive }) =>
@@ -312,6 +326,22 @@ function Header() {
                 }
               >
                 Orders
+              </NavLink>
+            ) : null}
+
+            {user?.role === "admin" ? (
+              <NavLink
+                to="/admin"
+                onClick={closePanels}
+                className={({ isActive }) =>
+                  `rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-orange-400/15 text-orange-200"
+                      : "bg-white/5 text-slate-200"
+                  }`
+                }
+              >
+                Admin
               </NavLink>
             ) : null}
 
