@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Button, Container, Error, Loader } from "../components";
 import {
-  addFoodItemToCart,
   getApiErrorMessage,
   getCurrentUser,
   getFoodItemDetails,
   getRestaurantDetails,
   postFoodItemReview,
 } from "../utils/mealDashApi";
+import { addItemToCart, fetchCart } from "../redux/actions/cart.action";
 
 function StarRating({ value = 0 }) {
   const rating = Math.max(0, Math.min(5, Number(value) || 0));
@@ -35,6 +36,7 @@ function StarRating({ value = 0 }) {
 function FoodItemDetailsPage() {
   const { restaurantId, foodItemId } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [restaurant, setRestaurant] = useState(null);
   const [foodItem, setFoodItem] = useState(null);
@@ -48,6 +50,7 @@ function FoodItemDetailsPage() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState("");
+  const [cartMessageIsError, setCartMessageIsError] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -147,9 +150,11 @@ function FoodItemDetailsPage() {
 
     setAddingToCart(true);
     setCartMessage("");
+    setCartMessageIsError(false);
 
     try {
-      await addFoodItemToCart(foodItemId, 1);
+      await dispatch(addItemToCart({ foodItemId, quantity: 1 })).unwrap();
+      dispatch(fetchCart());
       setCartMessage("Item added to your cart.");
     } catch (requestError) {
       const message = getApiErrorMessage(
@@ -160,6 +165,7 @@ function FoodItemDetailsPage() {
         navigate("/login");
         return;
       }
+      setCartMessageIsError(true);
       setCartMessage(message);
     } finally {
       setAddingToCart(false);
@@ -340,7 +346,13 @@ function FoodItemDetailsPage() {
                 </Button>
 
                 {cartMessage ? (
-                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+                  <div
+                    className={`rounded-2xl px-4 py-3 text-sm ${
+                      cartMessageIsError
+                        ? "border border-rose-400/20 bg-rose-400/10 text-rose-100"
+                        : "border border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
+                    }`}
+                  >
                     {cartMessage}
                   </div>
                 ) : null}

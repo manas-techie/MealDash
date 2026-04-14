@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiSearch, FiX } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Logo, Container } from "../index.js";
 import Cart from "../cart/Cart.jsx";
 import { logout } from "../../redux/actions/auth.action";
+import { fetchCart } from "../../redux/actions/cart.action";
 
 const navItems = [
   { label: "Home", to: "/" },
@@ -14,16 +15,29 @@ const navItems = [
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const { user } = useSelector((state) => state.auth);
+  const {
+    cart,
+    count: cartCount,
+    loading: cartLoading,
+  } = useSelector((state) => state.cart);
 
-  const isOnRestaurants = location.pathname === "/restaurants";
-  const isSupportActive = location.hash === "#support";
-  const cartCount = useMemo(() => 0, []);
+  const cartItemsPreview = useMemo(
+    () => cart?.items?.slice(0, 3) || [],
+    [cart],
+  );
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    dispatch(fetchCart());
+  }, [dispatch, user]);
 
   const closePanels = () => {
     setIsMenuOpen(false);
@@ -71,16 +85,32 @@ function Header() {
               {item.label}
             </NavLink>
           ))}
-          <a
-            href="/#support"
-            className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-              isSupportActive
-                ? "bg-orange-400/15 text-orange-200 ring-1 ring-orange-300/30"
-                : "text-slate-200 hover:bg-white/5 hover:text-white"
-            }`}
+          {user ? (
+            <NavLink
+              to="/orders"
+              className={({ isActive }) =>
+                `rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                  isActive
+                    ? "bg-orange-400/15 text-orange-200 ring-1 ring-orange-300/30"
+                    : "text-slate-200 hover:bg-white/5 hover:text-white"
+                }`
+              }
+            >
+              Orders
+            </NavLink>
+          ) : null}
+          <NavLink
+            to="/support"
+            className={({ isActive }) =>
+              `rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                isActive
+                  ? "bg-orange-400/15 text-orange-200 ring-1 ring-orange-300/30"
+                  : "text-slate-200 hover:bg-white/5 hover:text-white"
+              }`
+            }
           >
             Support
-          </a>
+          </NavLink>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -193,21 +223,56 @@ function Header() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-base font-bold text-white">Your cart</h2>
-                  <p className="mt-1 text-sm text-slate-300">
-                    Your cart is empty. Add items from restaurants to continue.
-                  </p>
+                  {cartLoading ? (
+                    <p className="mt-1 text-sm text-slate-300">
+                      Loading cart...
+                    </p>
+                  ) : cartItemsPreview.length ? (
+                    <div className="mt-2 space-y-1 text-sm text-slate-300">
+                      {cartItemsPreview.map((item) => (
+                        <p key={item._id}>
+                          {item.foodItem?.name || "Food item"} x {item.quantity}
+                        </p>
+                      ))}
+                      {cart?.items?.length > cartItemsPreview.length ? (
+                        <p className="text-xs text-slate-400">
+                          +{cart.items.length - cartItemsPreview.length} more
+                          item(s)
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-sm text-slate-300">
+                      Your cart is empty. Add items from restaurants to
+                      continue.
+                    </p>
+                  )}
                 </div>
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="md"
-                  onClick={() => {
-                    navigate("/restaurants");
-                    setIsCartOpen(false);
-                  }}
-                >
-                  Explore restaurants
-                </Button>
+                {cartItemsPreview.length ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="md"
+                    onClick={() => {
+                      navigate("/cart");
+                      setIsCartOpen(false);
+                    }}
+                  >
+                    Go to cart
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="md"
+                    onClick={() => {
+                      navigate("/restaurants");
+                      setIsCartOpen(false);
+                    }}
+                  >
+                    Explore restaurants
+                  </Button>
+                )}
               </div>
             </div>
           </Container>
@@ -234,17 +299,35 @@ function Header() {
               </NavLink>
             ))}
 
-            <a
-              href="/#support"
+            {user ? (
+              <NavLink
+                to="/orders"
+                onClick={closePanels}
+                className={({ isActive }) =>
+                  `rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-orange-400/15 text-orange-200"
+                      : "bg-white/5 text-slate-200"
+                  }`
+                }
+              >
+                Orders
+              </NavLink>
+            ) : null}
+
+            <NavLink
+              to="/support"
               onClick={closePanels}
-              className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                isSupportActive
-                  ? "bg-orange-400/15 text-orange-200"
-                  : "bg-white/5 text-slate-200"
-              }`}
+              className={({ isActive }) =>
+                `rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                  isActive
+                    ? "bg-orange-400/15 text-orange-200"
+                    : "bg-white/5 text-slate-200"
+                }`
+              }
             >
               Support
-            </a>
+            </NavLink>
 
             <div className="flex gap-2 pt-1">
               {user ? (

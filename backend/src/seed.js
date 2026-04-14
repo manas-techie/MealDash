@@ -15,12 +15,12 @@ require("dotenv").config({ path: "./src/config/config.env" });
 const mongoose = require("mongoose");
 const { DB_NAME } = require("./constant");
 
-// ─── Import Models ────────────────────────────────────────────────────────────
+//Import Models
 const Restaurant = require("./models/restaurant.model");
 const Menu = require("./models/menu.model");
 const FoodItem = require("./models/foodItem.model");
 
-// ─── Fixed IDs (so re-runs are idempotent) ────────────────────────────────────
+//Fixed IDs (so re-runs are idempotent)
 const OWNER_ID = new mongoose.Types.ObjectId("69c4d940fe35b8d682cef2ef"); // Manas Sidh
 
 const IDS = {
@@ -43,10 +43,10 @@ const IDS = {
   coldPressedJuice: new mongoose.Types.ObjectId("67fb4a1c2d3e4f5a6b7c8d18"),
 };
 
-// ─── Seed Data ────────────────────────────────────────────────────────────────
+// Seed Data 
 
 const foodItems = [
-  // ── Spice Garden ──────────────────────────────
+  // Spice Garden
   {
     _id: IDS.butterChicken,
     name: "Butter Chicken",
@@ -127,7 +127,7 @@ const foodItems = [
     restaurant: IDS.spiceGarden,
     reviews: [],
   },
-  // ── The Green Bowl ────────────────────────────
+  //The Green Bowl
   {
     _id: IDS.quinoaBowl,
     name: "Quinoa Power Bowl",
@@ -258,7 +258,7 @@ const restaurants = [
   },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+//Helpers
 
 async function upsertMany(Model, docs) {
   let inserted = 0;
@@ -277,10 +277,10 @@ async function upsertMany(Model, docs) {
   return { inserted, skipped };
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// Main
 
 async function seed() {
-  const uri = process.env.MONGO_URI;
+  const uri = process.env.MONGO_URI+DB_NAME ;
   console.log("\n🌱 Connecting to MongoDB...");
   await mongoose.connect(uri);
   console.log("✅ Connected!\n");

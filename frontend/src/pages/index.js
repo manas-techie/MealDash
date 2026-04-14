@@ -4,5 +4,20 @@ import RestaurantDetailsPage from "./RestaurantDetailsPage";
 import FoodItemDetailsPage from "./FoodItemDetailsPage";
 import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
+import CartPage from "./CartPage";
+import OrdersPage from "./OrdersPage";
+import OrderSuccessPage from "./OrderSuccessPage";
+import SupportPage from "./SupportPage";
 
-export { Home, AllRestaurants, RestaurantDetailsPage, FoodItemDetailsPage, LoginPage, SignupPage };
+export {
+    Home,
+    AllRestaurants,
+    RestaurantDetailsPage,
+    FoodItemDetailsPage,
+    LoginPage,
+    SignupPage,
+    CartPage,
+    OrdersPage,
+    OrderSuccessPage,
+    SupportPage,
+};

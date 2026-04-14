@@ -17,6 +17,10 @@ import {
   FoodItemDetailsPage,
   LoginPage,
   SignupPage,
+  CartPage,
+  OrdersPage,
+  OrderSuccessPage,
+  SupportPage,
 } from "./pages/index.js";
 
 const router = createBrowserRouter(
@@ -32,6 +36,10 @@ const router = createBrowserRouter(
         path="/restaurants/:restaurantId/food-items/:foodItemId"
         element={<FoodItemDetailsPage />}
       />
+      <Route path="/cart" element={<CartPage />} />
+      <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/order-success" element={<OrderSuccessPage />} />
+      <Route path="/support" element={<SupportPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
     </Route>,

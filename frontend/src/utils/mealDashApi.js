@@ -58,6 +58,58 @@ export async function addFoodItemToCart(foodItemId, quantity = 1) {
     return response.data?.data?.cart || null;
 }
 
+export async function getCart() {
+    const response = await api.get("/cart");
+    return {
+        cart: response.data?.data?.cart || null,
+        totalPrice: response.data?.data?.totalPrice || 0,
+    };
+}
+
+export async function updateCartItem(itemId, quantity) {
+    const response = await api.put(`/cart/${itemId}`, { quantity });
+    return {
+        cart: response.data?.data?.cart || null,
+        totalPrice: response.data?.data?.totalPrice || 0,
+    };
+}
+
+export async function removeCartItem(itemId) {
+    const response = await api.delete(`/cart/${itemId}`);
+    return {
+        cart: response.data?.data?.cart || null,
+        totalPrice: response.data?.data?.totalPrice || 0,
+    };
+}
+
+export async function clearCartItems() {
+    const response = await api.delete("/cart");
+    return {
+        cart: response.data?.data?.cart || null,
+        totalPrice: response.data?.data?.totalPrice || 0,
+    };
+}
+
+export async function createStripeCheckoutSession(payload) {
+    const response = await api.post("/payment/create-checkout-session", payload);
+    return response.data?.data || {};
+}
+
+export async function getMyOrders() {
+    const response = await api.get("/orders/my-orders");
+    return response.data?.data?.orders || [];
+}
+
+export async function getOrderDetails(orderId) {
+    const response = await api.get(`/orders/${orderId}`);
+    return response.data?.data?.order || null;
+}
+
+export async function cancelMyOrder(orderId) {
+    const response = await api.patch(`/orders/${orderId}/cancel`);
+    return response.data?.data?.order || null;
+}
+
 export function getApiErrorMessage(error, fallback = "Something went wrong") {
     return (
         error?.response?.data?.message ||
