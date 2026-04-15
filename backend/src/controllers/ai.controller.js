@@ -1,7 +1,7 @@
 const Restaurant = require("../models/restaurant.model");
 const FoodItem = require("../models/foodItem.model");
-const { generateDishDescription } = require("../../services/ai.service");
-const { generateReviewSummary } = require("../../services/aiReviewAnalyzer.service");
+const { generateDishDescription } = require("../services/ai.service");
+const { generateReviewSummary } = require("../services/aiReviewAnalyzer.service");
 const catchAsyncErrors = require("../utils/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorHandler");
 const { ApiResponse } = require("../utils/apiResponse");
