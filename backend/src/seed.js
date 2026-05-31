@@ -10,7 +10,7 @@
  * Safe to re-run: skips documents that already exist.
  */
 
-require("dotenv").config({ path: "./src/config/config.env" });
+require("dotenv").config({ path: "./config/config.env" });
 
 const mongoose = require("mongoose");
 const { DB_NAME } = require("./constant");
@@ -280,7 +280,7 @@ async function upsertMany(Model, docs) {
 // Main
 
 async function seed() {
-  const uri = process.env.MONGO_URI+DB_NAME ;
+  const uri = process.env.MONGO_URI+DB_NAME;
   console.log("\n🌱 Connecting to MongoDB...");
   await mongoose.connect(uri);
   console.log("✅ Connected!\n");
